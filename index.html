@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>💌 Mau Jalan Sama Aku?</title>
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --pd: #e91e8c; --pm: #f06292; --pl: #fce4ec;
+      --ps: #fff0f5; --rose: #ff4d94; --cream: #fff8fb;
+      --text: #5c2a42; --shadow: rgba(233,30,140,.22);
+    }
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: var(--ps);
+      min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      overflow-x: hidden;
+      padding: 16px 0 8px;
+    }
+    .footer {
+      position: relative; z-index: 2;
+      margin-top: 14px; margin-bottom: 10px;
+      font-size: .82rem; font-weight: 700;
+      color: #d4849e; letter-spacing: .5px;
+      display: flex; align-items: center; gap: 5px;
+      opacity: .85;
+    }
+    .footer .heart { color: var(--pd); animation: bounce 1.8s ease infinite; display:inline-block; font-style:normal; }
+
+    /* BG HEARTS */
+    .hearts-bg { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+    .heart-float {
+      position: absolute; bottom: -60px; animation: floatUp linear infinite; opacity: .5;
+    }
+    @keyframes floatUp {
+      0%   { transform: translateY(0) rotate(-15deg) scale(1); opacity:.5; }
+      50%  { transform: translateY(-50vh) rotate(15deg) scale(1.1); opacity:.35; }
+      100% { transform: translateY(-110vh) rotate(-10deg) scale(.8); opacity:0; }
+    }
+
+    /* CARD */
+    .card {
+      position: relative; z-index: 1;
+      background: var(--cream);
+      border-radius: 32px;
+      box-shadow: 0 16px 56px var(--shadow), 0 2px 8px rgba(0,0,0,.06);
+      padding: 36px 26px 40px;
+      width: 94%; max-width: 420px;
+      margin: 24px auto;
+      overflow: hidden;
+    }
+    .card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 6px;
+      background: linear-gradient(90deg, var(--pd), var(--pm), var(--rose), var(--pm), var(--pd));
+      background-size: 200% 100%;
+      animation: shimmer 3s linear infinite;
+    }
+    @keyframes shimmer { to { background-position: -200% 0; } }
+
+    /* DOTS */
+    .dots { display: flex; gap: 8px; justify-content: center; margin-bottom: 26px; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; background: #f8bbd9; transition: all .4s; }
+    .dot.active { background: var(--pd); transform: scale(1.35); }
+    .dot.done   { background: var(--pm); }
+
+    /* STEPS */
+    .step { display: none; animation: stepIn .45s cubic-bezier(.34,1.56,.64,1) both; }
+    .step.active { display: block; }
+    @keyframes stepIn {
+      from { opacity:0; transform: translateY(28px) scale(.95); }
+      to   { opacity:1; transform: translateY(0) scale(1); }
+    }
+
+    .step-emoji { font-size: 3.4rem; text-align: center; margin-bottom: 10px; animation: bounce 1.8s ease infinite; }
+    @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+
+    h2 {
+      font-family: 'Pacifico', cursive;
+      color: var(--pd); font-size: 1.45rem;
+      text-align: center; line-height: 1.4; margin-bottom: 20px;
+    }
+    p.sub { color: var(--pm); text-align: center; font-size: .92rem; margin-top: -14px; margin-bottom: 18px; }
+
+    /* INPUTS */
+    input[type="text"], input[type="time"] {
+      width: 100%; padding: 13px 16px;
+      border: 2.5px solid #f8c0d8; border-radius: 16px;
+      font-family: 'Nunito', sans-serif; font-size: 1rem;
+      color: var(--text); background: #fff; outline: none;
+      transition: border-color .25s, box-shadow .25s;
+    }
+    input:focus { border-color: var(--pd); box-shadow: 0 0 0 3px rgba(233,30,140,.14); }
+
+    /* OPTIONS */
+    .options { display: flex; flex-direction: column; gap: 11px; }
+    .opt-btn {
+      width: 100%; padding: 13px 16px;
+      border: 2.5px solid #f8c0d8; border-radius: 18px;
+      background: white; font-family: 'Nunito', sans-serif;
+      font-size: 1rem; font-weight: 700; color: var(--text);
+      cursor: pointer; transition: all .25s;
+      text-align: left; display: flex; align-items: center; gap: 10px;
+    }
+    .opt-btn:hover  { border-color: var(--pm); background: var(--pl); transform: translateY(-2px); }
+    .opt-btn.chosen { border-color: var(--pd); background: #fce4ec; color: var(--pd); box-shadow: 0 4px 14px var(--shadow); }
+    .opt-btn .oi { font-size: 1.4rem; }
+
+    /* BTN NEXT */
+    .btn-next {
+      margin-top: 20px; width: 100%; padding: 15px;
+      background: linear-gradient(135deg, var(--pd), var(--rose));
+      color: white; border: none; border-radius: 18px;
+      font-family: 'Nunito', sans-serif; font-size: 1.05rem; font-weight: 800;
+      cursor: pointer; letter-spacing: .4px;
+      transition: transform .2s, box-shadow .2s;
+      box-shadow: 0 6px 20px var(--shadow);
+    }
+    .btn-next:hover:not(:disabled) { transform: translateY(-2px) scale(1.02); box-shadow: 0 10px 28px var(--shadow); }
+    .btn-next:active:not(:disabled) { transform: scale(.97); }
+    .btn-next:disabled { opacity:.45; cursor:default; }
+
+    /* LOCATION BOX */
+    .loc-box {
+      background: var(--pl); border-radius: 16px;
+      padding: 14px 15px; margin-bottom: 14px;
+      display: flex; align-items: flex-start; gap: 10px;
+    }
+    .loc-box .li { font-size: 1.7rem; flex-shrink: 0; }
+    .loc-box .lt { font-size: .88rem; color: var(--text); line-height: 1.45; }
+    .loc-box .ln { font-weight: 800; font-size: .98rem; color: var(--pd); }
+
+    .label-sm { font-size: .82rem; color: var(--pm); font-weight: 700; margin-bottom: 6px; display: block; }
+
+    /* MAP CARD */
+    .map-card {
+      background: linear-gradient(135deg, #fff0f5, #fce4ec);
+      border: 2px solid #f8c0d8; border-radius: 20px;
+      padding: 16px; margin-top: 14px;
+    }
+    .map-card .map-title { font-weight: 800; color: var(--pd); font-size: 1rem; margin-bottom: 4px; }
+    .map-card .map-addr { font-size: .85rem; color: var(--text); line-height: 1.5; margin-bottom: 12px; }
+    .map-link {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 11px 16px;
+      background: linear-gradient(135deg, var(--pd), var(--rose));
+      color: white; border-radius: 14px; text-decoration: none;
+      font-weight: 800; font-size: .93rem;
+      box-shadow: 0 4px 14px var(--shadow);
+      transition: transform .2s, box-shadow .2s;
+    }
+    .map-link:hover { transform: translateY(-2px); box-shadow: 0 8px 20px var(--shadow); }
+
+    /* DONE */
+    #step-done, #step-sad { text-align: center; }
+    .summary-box {
+      background: var(--pl); border-radius: 18px;
+      padding: 16px; text-align: left; margin: 16px 0;
+      font-size: .91rem; color: var(--text); line-height: 1.9;
+    }
+    .summary-box span { font-weight: 800; color: var(--pd); }
+
+    /* SAD SCREEN */
+    .sad-emoji { font-size: 4.5rem; animation: sadBounce 2s ease infinite; }
+    @keyframes sadBounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+    .sad-text { font-family: 'Pacifico', cursive; color: #b06080; font-size: 1.4rem; margin: 12px 0 8px; line-height: 1.4; }
+    .sad-sub { color: #d4849e; font-size: .93rem; line-height: 1.6; }
+    .rain-drop { position: fixed; pointer-events: none; z-index: 999; font-size: 1.2rem; animation: rainFall linear forwards; }
+    @keyframes rainFall { 0%{transform:translateY(-20px);opacity:1} 100%{transform:translateY(110vh);opacity:.3} }
+
+    /* CONFETTI */
+    .conf { position: fixed; pointer-events: none; z-index: 999; font-size: 1.5rem; animation: confFall ease-out forwards; }
+    @keyframes confFall { 0%{transform:translateY(-30px) rotate(0);opacity:1} 100%{transform:translateY(110vh) rotate(720deg);opacity:0} }
+
+    /* SENDING */
+    .sending { text-align: center; padding: 24px 0; }
+    .loader { display: inline-block; width: 38px; height: 38px; border: 4px solid #f8c0d8; border-top-color: var(--pd); border-radius: 50%; animation: spin .7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+
+    /* NO-BTN absolute trick */
+    #no-btn { transition: left .3s cubic-bezier(.34,1.56,.64,1), top .3s cubic-bezier(.34,1.56,.64,1); }
+    #step-2 { position: relative; min-height: 240px; }
+  </style>
+</head>
+<body>
+
+<div class="hearts-bg" id="heartsBg"></div>
+
+<div class="card" id="mainCard">
+  <div class="dots" id="dots"></div>
+
+  <!-- ── STEP 1: nama ── -->
+  <div class="step active" id="step-1">
+    <div class="step-emoji">🌸</div>
+    <h2>Hei, siapa nama kamu?</h2>
+    <p class="sub">Perkenalan dulu ya~ 💕</p>
+    <input type="text" id="inp-nama" placeholder="Tulis nama kamu..." maxlength="50"
+      oninput="data.nama=this.value.trim()" />
+    <button class="btn-next" onclick="goStep(2)">Selanjutnya 💌</button>
+  </div>
+
+  <!-- ── STEP 2: mau jalan? ── -->
+  <div class="step" id="step-2">
+    <div class="step-emoji">🥺</div>
+    <h2>Kamu mau engga jalan sama aku?</h2>
+    <div class="options" style="position:relative; z-index:5">
+      <button class="opt-btn" id="yes-btn" onclick="pilihMau()">
+        <span class="oi">🥰</span> Iya, mau banget!
+      </button>
+    </div>
+    <button class="opt-btn" id="no-btn" onclick="noEscape(event)" style="margin-top:11px; width:100%">
+      <span class="oi">🙈</span> Hmm, engga deh...
+    </button>
+    <button class="btn-next" id="btn-step2" onclick="goStep(3)" disabled>Lanjut 💖</button>
+  </div>
+
+  <!-- ── STEP 3: lokasi ── -->
+  <div class="step" id="step-3">
+    <div class="step-emoji">📍</div>
+    <h2>Gimana kalau kita ke sini?</h2>
+    <p class="sub">Udah aku siapin tempat yang cozy 🌸</p>
+    <div class="loc-box">
+      <div class="li">🍰</div>
+      <div class="lt">
+        <div class="ln">Enpos - Energi Positif</div>
+        Palmsville Residence, Blok. AB No, RT.1/RW.2, Jagabaya III, Kec. Way Halim<br>
+        Bandar Lampung, Lampung<br>
+      </div>
+    </div>
+    <div class="options" id="opts-lokasi">
+      <button class="opt-btn" onclick="pilihLokasi('setuju',this)"><span class="oi">✅</span> Setuju, oke banget!</button>
+      <button class="opt-btn" onclick="pilihLokasi('engga',this)"><span class="oi">💭</span> Hmm, mau tempat lain...</button>
+    </div>
+    <div id="lokasi-other" style="display:none; margin-top:12px;">
+      <label class="label-sm">Mau ke mana?</label>
+      <input type="text" id="inp-lokasi" placeholder="Tulis tempat yang kamu mau..." />
+    </div>
+    <button class="btn-next" id="btn-step3" onclick="goStep(4)" disabled>Lanjut 💖</button>
+  </div>
+
+  <!-- ── STEP 4: tanggal ── -->
+  <div class="step" id="step-4">
+    <div class="step-emoji">📅</div>
+    <h2>Rabu, 3 Juni bisa engga?</h2>
+    <p class="sub">Udah dinanti-nanti nih~ 🌸</p>
+    <div class="options">
+      <button class="opt-btn" onclick="pilihTanggal('bisa',this)"><span class="oi">🗓️</span> Bisa, aku kosong kok!</button>
+      <button class="opt-btn" onclick="pilihTanggal('engga',this)"><span class="oi">😔</span> Aduh, ada acara deh...</button>
+    </div>
+    <button class="btn-next" id="btn-step4" onclick="nextFromTanggal()" disabled>Lanjut 💖</button>
+  </div>
+
+  <!-- ── STEP 5: jam ── -->
+  <div class="step" id="step-5">
+    <div class="step-emoji">⏰</div>
+    <h2>Jam berapa di lokasi?</h2>
+    <p class="sub">Pilih waktu yang enak buat kamu 🌸</p>
+    <label class="label-sm">Pilih jam ketemu</label>
+    <input type="time" id="inp-jam" value="13:00" />
+    <button class="btn-next" onclick="goStep(6)" style="margin-top:18px">Lanjut 💖</button>
+  </div>
+
+  <!-- ── STEP 6: jemput ── -->
+  <div class="step" id="step-6">
+    <div class="step-emoji">🚗</div>
+    <h2>Mau dijemput atau langsung ketemu di tempat?</h2>
+    <div class="options">
+      <button class="opt-btn" onclick="pilihJemput('dijemput',this)"><span class="oi">🚗</span> Dijemput dong~</button>
+      <button class="opt-btn" onclick="pilihJemput('ketemu',this)"><span class="oi">🏃‍♀️</span> Langsung ketemu di tempat</button>
+    </div>
+    <!-- map card – muncul kalau pilih dijemput -->
+    <div id="map-section" style="display:none; margin-top:14px;">
+      <label class="label-sm">🗺️ Share link Google Maps kamu</label>
+      <input type="text" id="inp-alamat" placeholder="Paste link maps lokasi kamu..." oninput="updateMapLink(this.value)" />
+      <p style="font-size:.78rem;color:#d4849e;margin-top:6px;">Buka Google Maps → pilih lokasimu → klik Share → copy link-nya 💕</p>
+      <div id="map-card-box" style="display:none">
+        <div class="map-card" style="margin-top:10px;">
+          <div class="map-title">📍 Link maps kamu udah masuk~</div>
+          <div class="map-addr">Nanti aku jemput ke sana ya! 🚗💨</div>
+          <a class="map-link" id="map-link-btn" href="#" target="_blank" rel="noopener">
+            🗺️ Cek Lokasi
+          </a>
+        </div>
+      </div>
+    </div>
+    <button class="btn-next" id="btn-step6" onclick="goStep(7)" disabled>Lanjut 💖</button>
+  </div>
+
+  <!-- ── STEP 7: cakep? ── -->
+  <div class="step" id="step-7">
+    <div class="step-emoji">😏</div>
+    <h2>Terakhir nih... menurut kamu aku cakep engga?</h2>
+    <div class="options">
+      <button class="opt-btn" onclick="pilihCakep('cakep',this)"><span class="oi">😍</span> Cakep!</button>
+      <button class="opt-btn" onclick="pilihCakep('cakep banget',this)"><span class="oi">🤩</span> Cakep banget sih!!</button>
+    </div>
+    <button class="btn-next" id="btn-step7" onclick="kirimData()" disabled>Kirim 💌</button>
+  </div>
+
+  <!-- ── SENDING ── -->
+  <div class="step" id="step-sending">
+    <div class="sending">
+      <div class="loader"></div>
+      <p style="margin-top:14px;color:var(--pm);font-weight:700">Lagi ngirimin jawaban kamu... 💌</p>
+    </div>
+  </div>
+
+  <!-- ── DONE ── -->
+  <div class="step" id="step-done" style="text-align:center">
+    <div class="step-emoji" style="font-size:4rem">🎉</div>
+    <h2>Yeay! Makasih banyak~</h2>
+    <p class="sub">Udah ditunggu-tunggu nih! 💕</p>
+    <div class="summary-box" id="summary-box"></div>
+    <p style="color:var(--pm);font-size:.88rem">Sampai ketemu <b id="sum-tgl" style="color:var(--pd)"></b> ya~ 🥰</p>
+  </div>
+
+  <!-- ── SAD (engga mau / engga bisa tanggal) ── -->
+  <div class="step" id="step-sad">
+    <div class="sad-emoji" id="sad-emoji">😢</div>
+    <p class="sad-text" id="sad-title">Yaudah deh... 🥺</p>
+    <p class="sad-sub" id="sad-msg">Makasih udah mau jawab ya.<br>Semoga kita ada kesempatan lain~ 💕</p>
+  </div>
+</div>
+
+<div class="footer">
+  made with <i class="heart">💕</i> by <span>rifqi</span>
+</div>
+
+<script>
+/* ══ CONFIG ══ */
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwwNDr-fSRt-uS8WkG9Y6IIreBYP3tPJlkKXCs46Y4awI1NAt9S0sV19bwjCr1xDHyPvw/exec";
+
+/* ══ STATE ══ */
+const data = { nama:'', mau:'', lokasi:'', tanggal:'Rabu, 3 Juni 2025', jam:'', jemput:'', cakep:'' };
+let currentStep = 1;
+const TOTAL = 7;
+
+/* ══ FLOATING HEARTS ══ */
+(function() {
+  const bg = document.getElementById('heartsBg');
+  const emos = ['💕','💖','💗','💓','🌸','✨','💘','💝','🌷'];
+  for (let i = 0; i < 18; i++) {
+    const h = document.createElement('span');
+    h.className = 'heart-float';
+    h.textContent = emos[Math.floor(Math.random()*emos.length)];
+    h.style.cssText = `left:${Math.random()*100}vw;font-size:${1+Math.random()*1.2}rem;animation-duration:${5+Math.random()*8}s;animation-delay:${Math.random()*8}s`;
+    bg.appendChild(h);
+  }
+})();
+
+/* ══ DOTS ══ */
+function renderDots(active) {
+  const c = document.getElementById('dots');
+  c.innerHTML = '';
+  for (let i = 1; i <= TOTAL; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i===active?' active':i<active?' done':'');
+    c.appendChild(d);
+  }
+}
+renderDots(1);
+
+/* ══ SHOW STEP ══ */
+function showStep(n) {
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.getElementById('step-'+n)?.classList.add('active');
+  if (typeof n==='number') renderDots(n);
+}
+
+/* ══ GO STEP ══ */
+function goStep(n) {
+  if (n===2 && !document.getElementById('inp-nama').value.trim()) {
+    const el = document.getElementById('inp-nama');
+    el.style.animation='shake .4s';
+    el.addEventListener('animationend',()=>el.style.animation='',{once:true});
+    return;
+  }
+  if (n===4) { data.lokasi = getLokasi(); if (!data.lokasi) return; }
+  if (n===6) { data.jam = document.getElementById('inp-jam').value||'13:00'; }
+  currentStep = n;
+  showStep(n);
+}
+
+/* ══ STEP 2: MAU JALAN ══ */
+let noCount = 0;
+const noMsgs = ['Beneran engga? 🥺','Masa sih... 😢','Please~~ 🙏'];
+const noIcons = ['😅','😭','🙏'];
+
+function pilihMau() {
+  data.mau = 'iya';
+  document.getElementById('yes-btn').classList.add('chosen');
+  document.getElementById('no-btn').style.display = 'none';
+  document.getElementById('btn-step2').disabled = false;
+}
+
+function noEscape(e) {
+  noCount++;
+  if (noCount >= 3) {
+    // setelah 2-3 kali → tampilkan sad screen
+    data.mau = 'engga';
+    kirimSad();
+    showSad(
+      '😢',
+      'Yaudah deh...',
+      'Makasih udah mau jawab ya ' + (data.nama||'') + '.<br>Semoga ada kesempatan lain~ 💕'
+    );
+    return;
+  }
+  const btn = document.getElementById('no-btn');
+  const card = document.getElementById('mainCard');
+  const maxX = card.offsetWidth - 200;
+  const maxY = 160;
+  const rx = 10 + Math.random() * Math.max(maxX, 20);
+  const ry = 60 + Math.random() * maxY;
+  btn.style.position = 'absolute';
+  btn.style.left = rx + 'px';
+  btn.style.top  = ry + 'px';
+  btn.style.zIndex = 20;
+  btn.style.width = '180px';
+  btn.innerHTML = `<span class="oi">${noIcons[noCount-1]}</span> ${noMsgs[noCount-1]}`;
+}
+
+/* ══ STEP 3: LOKASI ══ */
+function pilihLokasi(val, el) {
+  document.querySelectorAll('#opts-lokasi .opt-btn').forEach(b=>b.classList.remove('chosen'));
+  el.classList.add('chosen');
+  data._lokasiChoice = val;
+  document.getElementById('lokasi-other').style.display = val==='engga' ? 'block' : 'none';
+  document.getElementById('btn-step3').disabled = false;
+}
+function getLokasi() {
+  if (!data._lokasiChoice) return '';
+  if (data._lokasiChoice==='setuju') return 'Enpos - Energi Positif – Palmsville Residence, Blok. AB No, RT.1/RW.2, Jagabaya III, Kec. Way Halim, Bandar Lampung';
+  return document.getElementById('inp-lokasi').value.trim()||'';
+}
+
+/* ══ STEP 4: TANGGAL ══ */
+function pilihTanggal(val, el) {
+  document.querySelectorAll('#step-4 .opt-btn').forEach(b=>b.classList.remove('chosen'));
+  el.classList.add('chosen');
+  data._tanggalChoice = val;
+  document.getElementById('btn-step4').disabled = false;
+}
+function nextFromTanggal() {
+  if (!data._tanggalChoice) return;
+  if (data._tanggalChoice === 'engga') {
+    // sad screen – ga bisa tanggal
+    data.tanggal = 'tidak bisa';
+    kirimSad();
+    showSad(
+      '😔',
+      'Yauda deh, gapapa~ 🥺',
+      'Makasih udah mau jawab ya ' + (data.nama||'') + '.<br>Semoga kita bisa ketemu di kesempatan lain ya 💕<br>Sayang banget padahal~'
+    );
+    return;
+  }
+  data.tanggal = 'Rabu, 3 Juni 2025';
+  goStep(5);
+}
+
+/* ══ STEP 6: JEMPUT ══ */
+function pilihJemput(val, el) {
+  data.jemput = val;
+  document.querySelectorAll('#step-6 .opt-btn').forEach(b=>b.classList.remove('chosen'));
+  el.classList.add('chosen');
+  document.getElementById('map-section').style.display = val==='dijemput' ? 'block' : 'none';
+  // kalau ketemu langsung, langsung enable. kalau dijemput, tunggu alamat diisi
+  if (val === 'ketemu') {
+    document.getElementById('btn-step6').disabled = false;
+  } else {
+    const addr = document.getElementById('inp-alamat').value.trim();
+    document.getElementById('btn-step6').disabled = addr === '';
+  }
+}
+function updateMapLink(val) {
+  const box = document.getElementById('map-card-box');
+  const btn = document.getElementById('btn-step6');
+  const trimmed = val.trim();
+  if (trimmed) {
+    document.getElementById('map-link-btn').href = trimmed;
+    box.style.display = 'block';
+    btn.disabled = false;
+  } else {
+    box.style.display = 'none';
+    btn.disabled = true;
+  }
+}
+
+/* ══ STEP 7: CAKEP ══ */
+function pilihCakep(val, el) {
+  data.cakep = val;
+  document.querySelectorAll('#step-7 .opt-btn').forEach(b=>b.classList.remove('chosen'));
+  el.classList.add('chosen');
+  document.getElementById('btn-step7').disabled = false;
+}
+
+/* ══ KIRIM DATA ══ */
+async function kirimData() {
+  data.nama    = document.getElementById('inp-nama').value.trim();
+  data.lokasi  = getLokasi();
+  data.jam     = document.getElementById('inp-jam').value || '13:00';
+  data.alamat  = document.getElementById('inp-alamat')?.value.trim() || '-';
+
+  showStep('sending');
+  document.getElementById('dots').style.display = 'none';
+
+  const payload = {
+    timestamp: new Date().toLocaleString('id-ID'),
+    nama: data.nama, mau: data.mau, lokasi: data.lokasi,
+    tanggal: data.tanggal, jam: data.jam, jemput: data.jemput,
+    alamat: data.alamat, cakep: data.cakep
+  };
+
+  try {
+    await fetch(APPS_SCRIPT_URL, {
+      method:'POST', mode:'no-cors',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+  } catch(e) {}
+
+  setTimeout(() => tampilinDone(payload), 1400);
+}
+
+function tampilinDone(p) {
+  const jemputText = p.jemput==='dijemput'
+    ? `🚗 Dijemput dari <em>${p.alamat}</em>`
+    : '🏃‍♀️ Langsung ketemu di tempat';
+  document.getElementById('summary-box').innerHTML = `
+    <b>👤 Nama:</b> <span>${p.nama}</span><br>
+    <b>💕 Mau jalan:</b> <span>${p.mau}</span><br>
+    <b>📍 Lokasi:</b> <span>${p.lokasi}</span><br>
+    <b>📅 Tanggal:</b> <span>${p.tanggal}</span><br>
+    <b>⏰ Jam:</b> <span>${p.jam}</span><br>
+    <b>🚗 Mode:</b> <span>${jemputText}</span><br>
+    <b>😍 Cakep:</b> <span>${p.cakep}</span>
+  `;
+  document.getElementById('sum-tgl').textContent = p.tanggal;
+  showStep('done');
+  launchConfetti();
+}
+
+/* ══ SAD SCREEN ══ */
+async function kirimSad() {
+  data.nama = document.getElementById('inp-nama').value.trim();
+  const payload = {
+    timestamp: new Date().toLocaleString('id-ID'),
+    nama: data.nama, mau: data.mau||'engga',
+    lokasi:'-', tanggal: data.tanggal||'-',
+    jam:'-', jemput:'-', alamat:'-', cakep:'-'
+  };
+  try {
+    await fetch(APPS_SCRIPT_URL, {
+      method:'POST', mode:'no-cors',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+  } catch(e) {}
+}
+
+function showSad(emoji, title, msg) {
+  document.getElementById('sad-emoji').textContent = emoji;
+  document.getElementById('sad-title').textContent = title;
+  document.getElementById('sad-msg').innerHTML = msg;
+  document.getElementById('dots').style.display = 'none';
+  showStep('sad');
+  launchRain();
+}
+
+/* ══ RAIN (sad) ══ */
+function launchRain() {
+  const drops = ['😢','💧','🥺','💦'];
+  for (let i=0;i<24;i++) {
+    setTimeout(()=>{
+      const r = document.createElement('span');
+      r.className = 'rain-drop';
+      r.textContent = drops[Math.floor(Math.random()*drops.length)];
+      r.style.left = Math.random()*100+'vw';
+      r.style.top = '-30px';
+      r.style.fontSize = (.9+Math.random()*.9)+'rem';
+      r.style.animationDuration = (1.5+Math.random()*2.5)+'s';
+      r.style.animationDelay = (Math.random()*1.5)+'s';
+      document.body.appendChild(r);
+      setTimeout(()=>r.remove(),5000);
+    }, i*100);
+  }
+}
+
+/* ══ CONFETTI ══ */
+function launchConfetti() {
+  const emos = ['💕','🎉','💖','✨','🌸','💝','🥰','💗','🎊','🌷'];
+  for (let i=0;i<35;i++) {
+    setTimeout(()=>{
+      const c = document.createElement('span');
+      c.className = 'conf';
+      c.textContent = emos[Math.floor(Math.random()*emos.length)];
+      c.style.cssText = `left:${Math.random()*100}vw;top:-40px;font-size:${1.2+Math.random()*1.4}rem;animation-duration:${2+Math.random()*2}s;animation-delay:${Math.random()*1.2}s`;
+      document.body.appendChild(c);
+      setTimeout(()=>c.remove(),4000);
+    }, i*70);
+  }
+}
+</script>
+
+<!--
+═══════════════════════════════════════════════════════
+  CARA SETUP – GOOGLE SHEETS + GITHUB PAGES
+═══════════════════════════════════════════════════════
+
+STEP 1 — Google Apps Script (untuk simpan data ke Sheets)
+──────────────────────────────────────────────────────
+1. Buka sheets.google.com → buat spreadsheet baru
+2. Beri header di baris 1:
+   A: Timestamp | B: Nama | C: Mau Jalan Ti| D: Lokasi
+   E: Tanggal   | F: Jam  | G: Jemput    | H: Alamat | I: Cakep
+
+3. Extensions → Apps Script → paste kode berikut:
+
+function doPost(e) {
+  const sheet = SpreadsheetApp.getActiveSheet();
+  let d = {};
+  try { d = JSON.parse(e.postData.contents); } catch(x) {}
+  sheet.appendRow([d.timestamp,d.nama,d.mau,d.lokasi,d.tanggal,d.jam,d.jemput,d.alamat||'-',d.cakep]);
+  return ContentService
+    .createTextOutput(JSON.stringify({status:'ok'}))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+4. Deploy → New deployment → Web app
+   Execute as: Me | Who has access: Anyone → Deploy
+   Copy URL-nya
+
+5. Di file ini, ganti baris:
+   const APPS_SCRIPT_URL = "https://script.google.com/..."
+   dengan URL tadi
+
+STEP 2 — GitHub Pages
+──────────────────────────────────────────────────────
+1. Buat repo baru di github.com (contoh: "date-request")
+2. Upload file index.html ini
+3. Settings → Pages → Branch: main, folder: / (root) → Save
+4. Akses: https://[username].github.io/date-request
+
+SELESAI! 🎉
+═══════════════════════════════════════════════════════
+-->
+
+<style>
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+</style>
+</body>
+</html>
