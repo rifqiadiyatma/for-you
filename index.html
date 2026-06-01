@@ -260,7 +260,7 @@
     <h2>Jam berapa di lokasi?</h2>
     <p class="sub">Pilih waktu yang enak buat kamu 🌸</p>
     <label class="label-sm">Pilih jam ketemu</label>
-    <input type="time" id="inp-jam" value="13:00" />
+    <input type="time" id="inp-jam" value="17:00" />
     <button class="btn-next" onclick="goStep(6)" style="margin-top:18px">Lanjut 💖</button>
   </div>
 
@@ -502,7 +502,7 @@ function pilihCakep(val, el) {
 async function kirimData() {
   data.nama    = document.getElementById('inp-nama').value.trim();
   data.lokasi  = getLokasi();
-  data.jam     = document.getElementById('inp-jam').value || '13:00';
+  data.jam     = document.getElementById('inp-jam').value || '17:00';
   data.alamat  = document.getElementById('inp-alamat')?.value.trim() || '-';
 
   showStep('sending');
