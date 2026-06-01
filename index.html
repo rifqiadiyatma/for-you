@@ -380,7 +380,7 @@ function goStep(n) {
     return;
   }
   if (n===4) { data.lokasi = getLokasi(); if (!data.lokasi) return; }
-  if (n===6) { data.jam = document.getElementById('inp-jam').value||'13:00'; }
+  if (n===6) { data.jam = document.getElementById('inp-jam').value||'17:00'; }
   currentStep = n;
   showStep(n);
 }
